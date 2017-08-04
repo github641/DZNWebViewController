@@ -9,9 +9,10 @@
 //
 
 #import "DZNWebViewController.h"
-#import "DZNPolyActivity.h"
-
-#define DZN_IS_IPAD [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad
+#import "UIImage+TOWebViewControllerIcons.h"
+#import "TOActivitySafari.h"
+//#import "DZNPolyActivity.h"
+#define DZN_IS_IPAD ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
 #define DZN_IS_LANDSCAPE ([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft || [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight)
 
 static char DZNWebViewControllerKVOContext = 0;
@@ -65,6 +66,7 @@ static char DZNWebViewControllerKVOContext = 0;
 
 - (void)awakeFromNib
 {
+    [super awakeFromNib];
     [self commonInit];
 }
 
@@ -171,7 +173,7 @@ static char DZNWebViewControllerKVOContext = 0;
     if (!_backwardBarItem)
     {
         _backwardBarItem = [[UIBarButtonItem alloc] initWithImage:[self backwardButtonImage] landscapeImagePhone:nil style:0 target:self action:@selector(goBackward:)];
-        _backwardBarItem.accessibilityLabel = NSLocalizedStringFromTable(@"Backward", @"DZNWebViewController", @"Accessibility label button title");
+        _backwardBarItem.accessibilityLabel = @"后退";
         _backwardBarItem.enabled = NO;
     }
     return _backwardBarItem;
@@ -183,7 +185,7 @@ static char DZNWebViewControllerKVOContext = 0;
     {
         _forwardBarItem = [[UIBarButtonItem alloc] initWithImage:[self forwardButtonImage] landscapeImagePhone:nil style:0 target:self action:@selector(goForward:)];
         _forwardBarItem.landscapeImagePhone = nil;
-        _forwardBarItem.accessibilityLabel = NSLocalizedStringFromTable(@"Forward", @"DZNWebViewController", @"Accessibility label button title");
+        _forwardBarItem.accessibilityLabel = @"前进";
         _forwardBarItem.enabled = NO;
     }
     return _forwardBarItem;
@@ -204,7 +206,7 @@ static char DZNWebViewControllerKVOContext = 0;
     if (!_actionBarItem)
     {
         _actionBarItem = [[UIBarButtonItem alloc] initWithImage:[self actionButtonImage] landscapeImagePhone:nil style:0 target:self action:@selector(presentActivityController:)];
-        _actionBarItem.accessibilityLabel = NSLocalizedStringFromTable(@"Share", @"DZNWebViewController", @"Accessibility label button title");
+        _actionBarItem.accessibilityLabel = @"分享";
         _actionBarItem.enabled = NO;
     }
     return _actionBarItem;
@@ -246,7 +248,7 @@ static char DZNWebViewControllerKVOContext = 0;
 - (UIImage *)backwardButtonImage
 {
     if (!_backwardButtonImage) {
-        _backwardButtonImage = [UIImage imageNamed:@"dzn_icn_toolbar_backward" inBundle:[NSBundle bundleForClass:[DZNWebViewController class]] compatibleWithTraitCollection:nil];
+        _backwardButtonImage = [UIImage TOWebViewControllerIcon_backButtonWithAttributes:@{}];
     }
     return _backwardButtonImage;
 }
@@ -254,7 +256,7 @@ static char DZNWebViewControllerKVOContext = 0;
 - (UIImage *)forwardButtonImage
 {
     if (!_forwardButtonImage) {
-        _forwardButtonImage = [UIImage imageNamed:@"dzn_icn_toolbar_forward" inBundle:[NSBundle bundleForClass:[DZNWebViewController class]] compatibleWithTraitCollection:nil];
+        _forwardButtonImage = [UIImage TOWebViewControllerIcon_forwardButtonWithAttributes:@{}];
     }
     return _forwardButtonImage;
 }
@@ -262,7 +264,7 @@ static char DZNWebViewControllerKVOContext = 0;
 - (UIImage *)reloadButtonImage
 {
     if (!_reloadButtonImage) {
-        _reloadButtonImage = [UIImage imageNamed:@"dzn_icn_toolbar_reload" inBundle:[NSBundle bundleForClass:[DZNWebViewController class]] compatibleWithTraitCollection:nil];
+        _reloadButtonImage = [UIImage TOWebViewControllerIcon_refreshButtonWithAttributes:@{}];
     }
     return _reloadButtonImage;
 }
@@ -270,7 +272,7 @@ static char DZNWebViewControllerKVOContext = 0;
 - (UIImage *)stopButtonImage
 {
     if (!_stopButtonImage) {
-        _stopButtonImage = [UIImage imageNamed:@"dzn_icn_toolbar_stop" inBundle:[NSBundle bundleForClass:[DZNWebViewController class]] compatibleWithTraitCollection:nil];
+        _stopButtonImage = [UIImage TOWebViewControllerIcon_stopButtonWithAttributes:@{}];
     }
     return _stopButtonImage;
 }
@@ -278,7 +280,7 @@ static char DZNWebViewControllerKVOContext = 0;
 - (UIImage *)actionButtonImage
 {
     if (!_actionButtonImage) {
-        _actionButtonImage = [UIImage imageNamed:@"dzn_icn_toolbar_action" inBundle:[NSBundle bundleForClass:[DZNWebViewController class]] compatibleWithTraitCollection:nil];
+        _actionButtonImage = [UIImage TOWebViewControllerIcon_actionButtonWithAttributes:@{}];
     }
     return _actionButtonImage;
 }
@@ -291,53 +293,44 @@ static char DZNWebViewControllerKVOContext = 0;
         return activities;
     }
     
-    if ((_supportedWebActions & DZNWebActionCopyLink) > 0 || self.supportsAllActions) {
-        [activities addObject:[DZNPolyActivity activityWithType:DZNPolyActivityTypeLink]];
+    
+ 
+    if ((_supportedWebActions & DZNWebActionOpenSafari) || self.supportsAllActions) {
+        [activities addObject:[TOActivitySafari new]];
     }
-    if ((_supportedWebActions & DZNWebActionOpenSafari) > 0 || self.supportsAllActions) {
-        [activities addObject:[DZNPolyActivity activityWithType:DZNPolyActivityTypeSafari]];
-    }
-    if ((_supportedWebActions & DZNWebActionOpenChrome) > 0 || self.supportsAllActions) {
-        [activities addObject:[DZNPolyActivity activityWithType:DZNPolyActivityTypeChrome]];
-    }
-    if ((_supportedWebActions & DZNWebActionOpenOperaMini) > 0 || self.supportsAllActions) {
-        [activities addObject:[DZNPolyActivity activityWithType:DZNPolyActivityTypeOpera]];
-    }
-    if ((_supportedWebActions & DZNWebActionOpenDolphin) > 0 || self.supportsAllActions) {
-        [activities addObject:[DZNPolyActivity activityWithType:DZNPolyActivityTypeDolphin]];
-    }
+
     
     return activities;
 }
 
-- (NSArray *)excludedActivityTypesForItem:(id)item
-{
-    NSMutableArray *types = [NSMutableArray new];
-    
-    if (![item isKindOfClass:[UIImage class]]) {
-        [types addObjectsFromArray:@[UIActivityTypeCopyToPasteboard,
-                                     UIActivityTypeSaveToCameraRoll,
-                                     UIActivityTypePostToFlickr,
-                                     UIActivityTypePrint,
-                                     UIActivityTypeAssignToContact]];
-    }
-    
-    if (self.supportsAllActions) {
-        return types;
-    }
-    
-    if ((_supportedWebActions & DZNsupportedWebActionshareLink) == 0) {
-        [types addObjectsFromArray:@[UIActivityTypeMail, UIActivityTypeMessage,
-                                     UIActivityTypePostToFacebook, UIActivityTypePostToTwitter,
-                                     UIActivityTypePostToWeibo, UIActivityTypePostToTencentWeibo,
-                                     UIActivityTypeAirDrop]];
-    }
-    if ((_supportedWebActions & DZNWebActionReadLater) == 0 && [item isKindOfClass:[UIImage class]]) {
-        [types addObject:UIActivityTypeAddToReadingList];
-    }
-    
-    return types;
-}
+//- (NSArray *)excludedActivityTypesForItem:(id)item
+//{
+//    NSMutableArray *types = [NSMutableArray new];
+//    
+//    if (![item isKindOfClass:[UIImage class]]) {
+//        [types addObjectsFromArray:@[UIActivityTypeCopyToPasteboard,
+//                                     UIActivityTypeSaveToCameraRoll,
+//                                     UIActivityTypePostToFlickr,
+//                                     UIActivityTypePrint,
+//                                     UIActivityTypeAssignToContact]];
+//    }
+//    
+//    if (self.supportsAllActions) {
+//        return types;
+//    }
+//    
+//    if ((_supportedWebActions & DZNsupportedWebActionshareLink) == 0) {
+//        [types addObjectsFromArray:@[UIActivityTypeMail, UIActivityTypeMessage,
+//                                     UIActivityTypePostToFacebook, UIActivityTypePostToTwitter,
+//                                     UIActivityTypePostToWeibo, UIActivityTypePostToTencentWeibo,
+//                                     UIActivityTypeAirDrop]];
+//    }
+//    if ((_supportedWebActions & DZNWebActionReadLater) == 0 && [item isKindOfClass:[UIImage class]]) {
+//        [types addObject:UIActivityTypeAddToReadingList];
+//    }
+//    
+//    return types;
+//}
 
 - (BOOL)supportsAllActions
 {
@@ -423,7 +416,7 @@ static char DZNWebViewControllerKVOContext = 0;
     
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
     
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", nil) message:error.localizedDescription delegate:nil cancelButtonTitle:NSLocalizedString(@"OK", nil) otherButtonTitles: nil];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"错误" message:error.localizedDescription delegate:nil cancelButtonTitle:@"好的" otherButtonTitles: nil];
     [alert show];
 }
 
@@ -512,7 +505,7 @@ static char DZNWebViewControllerKVOContext = 0;
 - (void)presentHistoryControllerForTool:(DZNWebNavigationTools)tool fromView:(UIView *)view
 {
     UITableViewController *controller = [UITableViewController new];
-    controller.title = NSLocalizedStringFromTable(@"History", @"DZNWebViewController", nil);
+    controller.title = @"历史纪录";
     controller.tableView.delegate = self;
     controller.tableView.dataSource = self;
     controller.tableView.tag = tool;
@@ -596,7 +589,7 @@ static char DZNWebViewControllerKVOContext = 0;
     self.stateBarItem.action = self.webView.isLoading ? @selector(stopLoading) : @selector(reload);
     self.stateBarItem.image = self.webView.isLoading ? self.stopButtonImage : self.reloadButtonImage;
     self.stateBarItem.landscapeImagePhone = nil;
-    self.stateBarItem.accessibilityLabel = NSLocalizedStringFromTable(self.webView.isLoading ? @"Stop" : @"Reload", @"DZNWebViewController", @"Accessibility label button title");
+    self.stateBarItem.accessibilityLabel = self.webView.isLoading ? @"停止" : @"刷新";
     self.stateBarItem.enabled = YES;
 }
 
@@ -606,7 +599,93 @@ static char DZNWebViewControllerKVOContext = 0;
         return;
     }
     
-    [self presentActivityControllerWithItem:self.webView.URL.absoluteString andTitle:self.webView.title sender:sender];
+//    [self presentActivityControllerWithItem:self.webView.URL.absoluteString andTitle:self.webView.title sender:sender];
+    
+    // If we're on iOS 6 or above, we can use the super-duper activity view controller :)
+    if (NSClassFromString(@"UIPresentationController")) {
+        NSArray *browserActivities = @[[TOActivitySafari new]];
+        UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.webView.URL] applicationActivities:browserActivities];
+        activityViewController.modalPresentationStyle = UIModalPresentationPopover;
+        activityViewController.popoverPresentationController.barButtonItem = sender;
+        activityViewController.excludedActivityTypes = @[UIActivityTypeAddToReadingList];
+        [self presentViewController:activityViewController animated:YES completion:nil];
+    }
+    else if (NSClassFromString(@"UIActivityViewController"))
+    {
+//        NSArray *browserActivities = @[[TOActivitySafari new]];
+//        UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.url] applicationActivities:browserActivities];
+//        
+//        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+//        {
+//            //If we're on an iPhone, we can just present it modally
+//            [self presentViewController:activityViewController animated:YES completion:nil];
+//        }
+//        else
+//        {
+//            //UIPopoverController requires we retain our own instance of it.
+//            //So if we somehow have a prior instance, clean it out
+//            if (self.sharingPopoverController)
+//            {
+//                [self.sharingPopoverController dismissPopoverAnimated:NO];
+//                self.sharingPopoverController = nil;
+//            }
+//            
+//#pragma GCC diagnostic push
+//#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+//            
+//            //Create the sharing popover controller
+//            self.sharingPopoverController = [[UIPopoverController alloc] initWithContentViewController:activityViewController];
+//            self.sharingPopoverController.delegate = self;
+//            [self.sharingPopoverController presentPopoverFromBarButtonItem:self.actionButton permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+//            
+//#pragma GCC diagnostic pop
+//        }
+    }
+    else //We must be on iOS 5,
+    {
+        
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+        
+//        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+//                                                                 delegate:self
+//                                                        cancelButtonTitle:nil
+//                                                   destructiveButtonTitle:nil
+//                                                        otherButtonTitles:@"复制链接", nil];
+//        
+//        NSInteger numberOfButtons = 1;
+//        
+//        NSString *browserMessage = @"用 Safari 打开";
+//        
+//        [actionSheet addButtonWithTitle:browserMessage];
+//        numberOfButtons++;
+//        
+//        //Add Email
+//        if ([MFMailComposeViewController canSendMail]) {
+//            [actionSheet addButtonWithTitle:@"Email"];
+//            numberOfButtons++;
+//        }
+//        
+//        //Add SMS
+//        if ([MFMessageComposeViewController canSendText]) {
+//            [actionSheet addButtonWithTitle:@"短信"];
+//            numberOfButtons++;
+//        }
+//        
+//        
+//        //Add a cancel button if on iPhone
+//        if (self.compactPresentation) {
+//            [actionSheet addButtonWithTitle:@"取消"];
+//            [actionSheet setCancelButtonIndex:numberOfButtons];
+//            [actionSheet showInView:self.view];
+//        }
+//        else {
+//            [actionSheet showFromRect:[(UIView *)sender frame] inView:[(UIView *)sender superview] animated:YES];
+//        }
+        
+#pragma clang diagnostic pop
+    }
+    
 }
 
 - (void)presentActivityControllerWithItem:(id)item andTitle:(NSString *)title sender:(id)sender
@@ -616,15 +695,16 @@ static char DZNWebViewControllerKVOContext = 0;
     }
     
     UIActivityViewController *controller = [[UIActivityViewController alloc] initWithActivityItems:@[title, item] applicationActivities:[self applicationActivitiesForItem:item]];
-    controller.excludedActivityTypes = [self excludedActivityTypesForItem:item];
-    
+//    controller.excludedActivityTypes = [self excludedActivityTypesForItem:item];
+    controller.modalPresentationStyle = UIModalPresentationPopover;
+    controller.popoverPresentationController.barButtonItem = sender;
     if (title) {
         [controller setValue:title forKey:@"subject"];
     }
     
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        controller.popoverPresentationController.barButtonItem = sender;
-    }
+//    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+//        controller.popoverPresentationController.barButtonItem = sender;
+//    }
     
     [self presentViewController:controller animated:YES completion:NULL];
 }

@@ -34,9 +34,6 @@ typedef NS_OPTIONS(NSUInteger, DZNsupportedWebActions) {
     DZNWebActionCopyLink = (1 << 1),
     DZNWebActionReadLater = (1 << 2),
     DZNWebActionOpenSafari = (1 << 3),
-    DZNWebActionOpenChrome = (1 << 4),
-    DZNWebActionOpenOperaMini = (1 << 5),
-    DZNWebActionOpenDolphin = (1 << 6),
 };
 
 /**
